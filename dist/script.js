@@ -1362,6 +1362,20 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const mask = selector => {
+  function setCursorPosition(pos, elem) {
+    elem.focus();
+
+    if (elem.setSelectionRange) {
+      elem.setSelectionRange(pos, pos);
+    } else if (elem.createTextRange) {
+      let range = elem.createTextRange();
+      range.collapse(true);
+      range.moveEnd('character', pos);
+      range.moveStart('character', pos);
+      range.select();
+    }
+  }
+
   function createMask(event) {
     let matrix = '+7 (___) ___ __ __',
         i = 0,
@@ -1380,7 +1394,9 @@ const mask = selector => {
       if (this.value.length <= 2) {
         this.value = '';
       }
-    } else {}
+    } else {
+      setCursorPosition(this.value.length, this);
+    }
   }
 
   const inputs = document.querySelectorAll(selector);
