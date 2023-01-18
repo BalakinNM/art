@@ -1238,6 +1238,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/modal */ "./src/js/modules/modal.js");
 /* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
 /* harmony import */ var _modules_mask__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/mask */ "./src/js/modules/mask.js");
+/* harmony import */ var _modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/checkTextInputs */ "./src/js/modules/checkTextInputs.js");
+/* harmony import */ var _modules_showMoreStyles__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/showMoreStyles */ "./src/js/modules/showMoreStyles.js");
+/* harmony import */ var _modules_calc__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/calc */ "./src/js/modules/calc.js");
+
+
+
 
 
 
@@ -1245,12 +1251,96 @@ __webpack_require__.r(__webpack_exports__);
 window.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
+  let calcObj = {};
+  Object(_modules_calc__WEBPACK_IMPORTED_MODULE_6__["default"])("#size", '#material', '#options', '.promocode', '.calc-price', calcObj);
   Object(_modules_sliders__WEBPACK_IMPORTED_MODULE_0__["default"])('.main-slider-item', 'vertical', '.prev', '.next');
   Object(_modules_sliders__WEBPACK_IMPORTED_MODULE_0__["default"])('.feedback-slider-item', 'horizontal', '.main-prev-btn', '.main-next-btn');
   Object(_modules_modal__WEBPACK_IMPORTED_MODULE_1__["default"])();
-  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_2__["default"])();
+  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_2__["default"])(calcObj);
   Object(_modules_mask__WEBPACK_IMPORTED_MODULE_3__["default"])('[name="phone"]');
+  Object(_modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__["default"])('[name="message"]');
+  Object(_modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__["default"])('[name="name"]');
+  Object(_modules_showMoreStyles__WEBPACK_IMPORTED_MODULE_5__["default"])('.button-styles', '.styles > div > div');
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/calc.js":
+/*!********************************!*\
+  !*** ./src/js/modules/calc.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+const calc = (size, material, options, promocode, result, state) => {
+  const sizeBlock = document.querySelector(size),
+        materialBlock = document.querySelector(material),
+        optionsBlock = document.querySelector(options),
+        resultBlock = document.querySelector(result),
+        promocodeBlock = document.querySelector(promocode);
+
+  function objDescr(n) {
+    return n.options[n.selectedIndex].textContent;
+  }
+
+  let sum = 0;
+
+  function calcFunction() {
+    sum = Math.round(+sizeBlock.value * +materialBlock.value + +optionsBlock.value);
+
+    if (sizeBlock.value == "" || materialBlock.value == "") {
+      resultBlock.textContent = "Пожалуйста выберите размер и материал картины";
+    } else if (promocodeBlock.value === 'IWANTPOPART') {
+      resultBlock.textContent = Math.round(sum * 0.7);
+    } else {
+      resultBlock.textContent = sum;
+    }
+
+    state.size = `Размер полотна: ${objDescr(sizeBlock)} стоимость: ${sizeBlock.value}`, state.material = `Материал полотна: ${objDescr(materialBlock)} стоимость: ${materialBlock.value}`, state.options = `Дополнительная опция: ${objDescr(optionsBlock)} стоимость: ${optionsBlock.value}`, state.promocode = `Введенный промокод: ${promocodeBlock.value}`, state.cost = `Сумма: ${sum}`;
+  }
+
+  sizeBlock.addEventListener('change', calcFunction);
+  materialBlock.addEventListener('change', calcFunction);
+  optionsBlock.addEventListener('change', calcFunction);
+  promocodeBlock.addEventListener('input', calcFunction);
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (calc);
+/*         state = {
+            state.size: `Размер полотна: ${objDescr(sizeBlock)} стоимость: ${sizeBlock.value}`,
+            material: `Материал полотна: ${objDescr(materialBlock)} стоимость: ${materialBlock.value}`,
+            options: `Дополнительная опция: ${objDescr(optionsBlock)} стоимость: ${optionsBlock.value}`,
+            promocode: `Введенный промокод: ${promocodeBlock.value}`,
+            cost: `Сумма: ${sum}`
+        }; */
+
+/***/ }),
+
+/***/ "./src/js/modules/checkTextInputs.js":
+/*!*******************************************!*\
+  !*** ./src/js/modules/checkTextInputs.js ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.string.replace */ "./node_modules/core-js/modules/es.string.replace.js");
+/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__);
+
+
+const checkTextInputs = selector => {
+  const txtInputs = document.querySelectorAll(selector);
+  txtInputs.forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^а-яё 0-9]/ig, '');
+    });
+  });
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (checkTextInputs);
 
 /***/ }),
 
@@ -1266,7 +1356,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_request__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/request */ "./src/js/services/request.js");
 
 
-const forms = () => {
+const forms = state => {
   const form = document.querySelectorAll('form'),
         input = document.querySelectorAll('input'),
         upload = document.querySelectorAll('[name="upload"]');
@@ -1319,8 +1409,16 @@ const forms = () => {
       }, 500);
       let api;
       const formData = new FormData(item);
-      item.closest('.popup-design') || item.classList.contains('.calc_form') ? api = path.designer : api = path.question;
-      Object(_services_request__WEBPACK_IMPORTED_MODULE_0__["default"])(api, formData).then(res => {
+      console.log(state);
+
+      if (item.classList.contains('calc_form')) {
+        for (let key in state) {
+          formData.append(key, state[key]);
+        }
+      }
+
+      item.closest('.popup-design') || item.classList.contains('calc_form') ? api = path.designer : api = path.question;
+      Object(_services_request__WEBPACK_IMPORTED_MODULE_0__["postData"])(api, formData).then(res => {
         console.log(res);
         setTimeout(() => {
           statusImg.setAttribute('src', message.ok);
@@ -1519,6 +1617,49 @@ const modal = () => {
 
 /***/ }),
 
+/***/ "./src/js/modules/showMoreStyles.js":
+/*!******************************************!*\
+  !*** ./src/js/modules/showMoreStyles.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _services_request__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/request */ "./src/js/services/request.js");
+
+
+const showMoreStyles = (trigger, wrapper) => {
+  const btn = document.querySelector(trigger);
+  btn.addEventListener('click', () => {
+    Object(_services_request__WEBPACK_IMPORTED_MODULE_0__["getResource"])('http://localhost:3000/styles').then(res => createCards(res)).catch(error => console.log(error));
+    btn.remove();
+  });
+
+  function createCards(res) {
+    res.forEach(({
+      src,
+      title,
+      link
+    }) => {
+      let card = document.createElement('div');
+      card.classList.add('animated', 'fadeIn', 'col-sm-3', 'col-sm-offset-0', 'col-xs-10', 'col-xs-offset-1');
+      card.innerHTML = `
+            <div class=styles-block>
+                <img src=${src} alt='style'>
+                <h4>${title}</h4>
+                <a href=${link}>Подробнее</a>
+            </div>
+            `;
+      document.querySelector(wrapper).appendChild(card);
+    });
+  }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (showMoreStyles);
+
+/***/ }),
+
 /***/ "./src/js/modules/sliders.js":
 /*!***********************************!*\
   !*** ./src/js/modules/sliders.js ***!
@@ -1601,11 +1742,13 @@ const sliders = (slides, dir, prev, next) => {
 /*!************************************!*\
   !*** ./src/js/services/request.js ***!
   \************************************/
-/*! exports provided: default */
+/*! exports provided: postData, getResource */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "postData", function() { return postData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getResource", function() { return getResource; });
 const postData = async (url, data) => {
   let res = await fetch(url, {
     method: 'POST',
@@ -1614,7 +1757,17 @@ const postData = async (url, data) => {
   return await res.text();
 };
 
-/* harmony default export */ __webpack_exports__["default"] = (postData);
+const getResource = async url => {
+  let res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+  }
+
+  return await res.json();
+};
+
+
 
 /***/ })
 
